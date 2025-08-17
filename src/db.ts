@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 
 const { Types } = mongoose;
 
@@ -30,5 +34,6 @@ const User = mongoose.model("User", userSchema);
 const Tag = mongoose.model("Tag", tagSchema);
 const Content = mongoose.model("Content", contentSchema);
 const Link = mongoose.model('Link',linkSchema);
+
 
 export {User,Tag,Content,Link};
