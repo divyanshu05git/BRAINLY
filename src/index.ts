@@ -71,7 +71,7 @@ app.post("/api/v1/signin",async (req,res)=>{
 
     try{
         //GENERATING A TOKEN
-        const token=jwt.sign({id:username._id},JWT_SECRET);
+        const token=jwt.sign({id:user._id},JWT_SECRET);
         res.json({
             token:token
         })
@@ -83,8 +83,30 @@ app.post("/api/v1/signin",async (req,res)=>{
     }
 })
 
-app.post("/api/v1/content",(req,res)=>{
+app.post("/api/v1/content",userMiddleware,async (req,res)=>{
+    const link=req.body.link;
+    const type=req.body.type;
+    const title=req.body.title
 
+    try{
+    const content =await Content.create({
+        title,
+        link,
+        type,
+        //@ts-ignore
+        userId: req.userId,
+        tags:[]
+    })
+
+    return res.json({
+        message:"Content added"
+    })
+    }
+    catch(err){
+        res.status(400).json({
+            message:"Can not add content"
+        })
+    }
 })
 
 app.get("/api/v1/content",(req,res)=>{

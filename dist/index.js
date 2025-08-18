@@ -18,6 +18,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const zod_1 = require("zod");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const db_js_1 = require("./db.js");
+const middleware_js_1 = require("./middleware.js");
 const cors_1 = __importDefault(require("cors"));
 const config_1 = require("./config");
 const app = (0, express_1.default)();
@@ -68,7 +69,7 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
     try {
-        const token = jsonwebtoken_1.default.sign({ id: username._id }, config_1.JWT_SECRET);
+        const token = jsonwebtoken_1.default.sign({ id: user._id }, config_1.JWT_SECRET);
         res.json({
             token: token
         });
@@ -79,8 +80,28 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 }));
-app.post("/api/v1/content", (req, res) => {
-});
+app.post("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const link = req.body.link;
+    const type = req.body.type;
+    const title = req.body.title;
+    try {
+        const content = yield db_js_1.Content.create({
+            title,
+            link,
+            type,
+            userId: req.userId,
+            tags: []
+        });
+        return res.json({
+            message: "Content added"
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            message: "Can not add content"
+        });
+    }
+}));
 app.get("/api/v1/content", (req, res) => {
 });
 app.delete("/api/v1/content", (req, res) => {

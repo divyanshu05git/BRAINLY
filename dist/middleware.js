@@ -16,16 +16,17 @@ exports.userMiddleware = void 0;
 const config_js_1 = require("./config.js");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const userMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const header = req.headers["authorization"];
-    const token = jsonwebtoken_1.default.verify(header, config_js_1.JWT_SECRET);
-    if (token) {
+    try {
+        const token = req.headers["authorization"];
+        if (!token) {
+            return res.status(401).json({ message: "Authorization header missing" });
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, config_js_1.JWT_SECRET);
         req.userId = decoded.id;
         next();
     }
-    else {
-        res.status(401).json({
-            messagr: "Unauthorized user"
-        });
+    catch (err) {
+        return res.status(401).json({ message: "Unauthorized user" });
     }
 });
 exports.userMiddleware = userMiddleware;
