@@ -13,11 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const zod_1 = require("zod");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const db_js_1 = require("./db.js");
 const cors_1 = __importDefault(require("cors"));
+const config_1 = require("./config");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
@@ -49,8 +51,34 @@ app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 }));
-app.post("/api/v1/signin", (req, res) => {
-});
+app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const username = req.body.username;
+    const password = req.body.password;
+    const user = yield db_js_1.User.findOne({ username });
+    if (!user) {
+        res.status(403).json({
+            message: "Invalid username and password"
+        });
+        return;
+    }
+    const isMatch = yield bcrypt_1.default.compare(password, user.password);
+    if (!isMatch) {
+        res.status(403).json({
+            message: "Invalid username and password"
+        });
+    }
+    try {
+        const token = jsonwebtoken_1.default.sign({ id: username._id }, config_1.JWT_SECRET);
+        res.json({
+            token: token
+        });
+    }
+    catch (err) {
+        res.status(403).json({
+            message: "error while signing in"
+        });
+    }
+}));
 app.post("/api/v1/content", (req, res) => {
 });
 app.get("/api/v1/content", (req, res) => {

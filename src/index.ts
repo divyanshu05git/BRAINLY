@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 import {User,Content,Link,Tag} from "./db.js"
 import {userMiddleware} from "./middleware.js"
 import cors from "cors";
-import { MONGO_URL } from "./config";
+import { JWT_SECRET } from "./config";
 
 const app=express();
 app.use(express.json());
@@ -48,8 +48,39 @@ app.post("/api/v1/signup",async (req,res)=>{
 
 })
 
-app.post("/api/v1/signin",(req,res)=>{
+app.post("/api/v1/signin",async (req,res)=>{
+    const username=req.body.username;
+    const password=req.body.password;
 
+    
+
+    const user=await User.findOne({username});
+    if(!user){
+        res.status(403).json({
+            message:"Invalid username and password"
+        })
+        return;
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if(!isMatch){
+        res.status(403).json({
+            message:"Invalid username and password"
+        })
+    }
+
+    try{
+        //GENERATING A TOKEN
+        const token=jwt.sign({id:username._id},JWT_SECRET);
+        res.json({
+            token:token
+        })
+    }
+    catch(err){
+        res.status(403).json({
+            message:"error while signing in"
+        })
+    }
 })
 
 app.post("/api/v1/content",(req,res)=>{
