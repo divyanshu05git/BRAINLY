@@ -102,8 +102,22 @@ app.post("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awai
         });
     }
 }));
-app.get("/api/v1/content", (req, res) => {
-});
+app.get("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    try {
+        const content = yield db_js_1.Content.find({
+            userId: userId
+        }).populate("userId", "username");
+        res.json({
+            content
+        });
+    }
+    catch (err) {
+        res.json({
+            message: "can not find the contents ,try again "
+        });
+    }
+}));
 app.delete("/api/v1/content", (req, res) => {
 });
 app.get("/api/v1/brain/:shareLink", (req, res) => {
