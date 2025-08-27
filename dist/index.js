@@ -21,6 +21,7 @@ const db_js_1 = require("./db.js");
 const middleware_js_1 = require("./middleware.js");
 const cors_1 = __importDefault(require("cors"));
 const config_1 = require("./config");
+const utils_js_1 = require("./utils.js");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
@@ -84,7 +85,9 @@ app.post("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awai
     const link = req.body.link;
     const type = req.body.type;
     const title = req.body.title;
+    console.log("everything is listed");
     try {
+        console.log("before content addition");
         const content = yield db_js_1.Content.create({
             title,
             link,
@@ -92,6 +95,7 @@ app.post("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awai
             userId: req.userId,
             tags: []
         });
+        console.log("after content addition");
         return res.json({
             message: "Content added"
         });
@@ -118,10 +122,59 @@ app.get("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __await
         });
     }
 }));
-app.delete("/api/v1/content", (req, res) => {
-});
-app.get("/api/v1/brain/:shareLink", (req, res) => {
-});
+app.delete("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    const contentId = req.body.contentId;
+    try {
+        const del = yield db_js_1.Content.deleteMany({
+            userId,
+            contentId
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            message: "Can not delete the content"
+        });
+    }
+}));
+app.post("/api/v1/brain/share", middleware_js_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const share = req.body.share;
+    if (share) {
+        const existingLink = yield db_js_1.Link.findOne({ userId: req.userId });
+        if (existingLink) {
+            res.json({ hash: existingLink.hash });
+            return;
+        }
+        const hash = (0, utils_js_1.random)(10);
+        yield db_js_1.Link.create({
+            userId: req.userId,
+            hash
+        });
+        res.json({ hash });
+    }
+    else {
+        yield db_js_1.Link.deleteOne({ userId: req.userId });
+        res.json({ message: "Removed link" });
+    }
+}));
+app.get("/api/v1/brain/:shareLink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const hash = req.params.shareLink;
+    const link = yield db_js_1.Link.findOne({ hash });
+    if (!link) {
+        res.status(404).json({ message: "Invalid share link" });
+        return;
+    }
+    const content = yield db_js_1.Content.find({ userId: link.userId });
+    const user = yield db_js_1.User.findOne({ _id: link.userId });
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+    }
+    res.json({
+        username: user.username,
+        content
+    });
+}));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {

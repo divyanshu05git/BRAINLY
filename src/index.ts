@@ -10,10 +10,7 @@ import cors from "cors";
 import { JWT_SECRET } from "./config";
 import { makeError } from "ethers";
 import crypto from "crypto";
-
-function random(length:number) {
-  return crypto.randomBytes(length).toString("hex").slice(0, length);
-}
+import {random} from "./utils.js"
 
 
 const app=express();
@@ -90,24 +87,28 @@ app.post("/api/v1/signin",async (req,res)=>{
     }
 })
 
+//working
 app.post("/api/v1/content",userMiddleware,async (req,res)=>{
     const link=req.body.link;
     const type=req.body.type;
     const title=req.body.title
 
-    try{
-    const content =await Content.create({
-        title,
-        link,
-        type,
-        //@ts-ignore
-        userId: req.userId,
-        tags:[]
-    })
+   
 
-    return res.json({
-        message:"Content added"
-    })
+    try{
+        
+        const content =await Content.create({
+            title,
+            link,
+            type,
+            //@ts-ignore
+            userId:req.userId,
+            tags:[]
+        })
+
+        return res.json({
+            message:"Content added"
+        })
     }
     catch(err){
         res.status(400).json({
@@ -155,7 +156,7 @@ app.delete("/api/v1/content",userMiddleware,async(req,res)=>{
 })
 
 app.post("/api/v1/brain/share",userMiddleware,async (req,res)=>{
-    const { share } = req.body;
+    const share = req.body.share;
     if (share) {
         // Check if a link already exists for the user.
         //@ts-ignore
@@ -167,8 +168,12 @@ app.post("/api/v1/brain/share",userMiddleware,async (req,res)=>{
 
         // Generate a new hash for the shareable link.
         const hash = random(10);
-        //@ts-ignore
-        await Link.create({ userId: req.userId, hash });
+        
+        await Link.create({ 
+            //@ts-ignore
+            userId: req.userId,
+            hash 
+        });
         res.json({ hash }); // Send new hash in the response.
     } else {
         // Remove the shareable link if share is false.
@@ -201,11 +206,11 @@ app.get("/api/v1/brain/:shareLink",async (req,res)=>{
     res.json({
         username: user.username,
         content
-    }); // Send user and content details in response.
+    }); 
 })
 
 
-// Start the server
+
 async function main(){
     try {
         await mongoose.connect(process.env.MONGO_URL as string);
