@@ -8,8 +8,6 @@ import {User,Content,Link,Tag} from "./db.js"
 import {userMiddleware} from "./middleware.js"
 import cors from "cors";
 import { JWT_SECRET } from "./config";
-import { makeError } from "ethers";
-import crypto from "crypto";
 import {random} from "./utils.js"
 
 
