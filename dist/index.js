@@ -85,9 +85,7 @@ app.post("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awai
     const link = req.body.link;
     const type = req.body.type;
     const title = req.body.title;
-    console.log("everything is listed");
     try {
-        console.log("before content addition");
         const content = yield db_js_1.Content.create({
             title,
             link,
@@ -95,7 +93,6 @@ app.post("/api/v1/content", middleware_js_1.userMiddleware, (req, res) => __awai
             userId: req.userId,
             tags: []
         });
-        console.log("after content addition");
         return res.json({
             message: "Content added"
         });

@@ -49,7 +49,8 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "target": "es2016",                                /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "lib": ["esnext"],  
 
     /* Modules */
     "module": "commonjs",                                /* Specify what module code is generated. */
@@ -58,11 +59,15 @@
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
 
+    "types": ["node", "express"],
+
     /* Type Checking */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
 
     /* Additional Options */
     "removeComments": true                               /* Do not emit comments in the output files. */
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

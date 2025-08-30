@@ -210,12 +210,13 @@ app.get("/api/v1/brain/:shareLink",async (req,res)=>{
 })
 
 
+const PORT = process.env.PORT || 3000;
 
 async function main(){
     try {
         await mongoose.connect(process.env.MONGO_URL as string);
         console.log("Connected ");
-        app.listen(3000, () => console.log("Server running on port 3000"));
+        app.listen(PORT, () => console.log("Server running on port "+`${PORT}`));
     } catch (err) {
         console.error("MongoDB connection failed:", err);
         process.exit(1);
